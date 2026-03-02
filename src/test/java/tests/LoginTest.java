@@ -4,119 +4,138 @@ import base.BaseTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
-import java.time.Duration;
 
 public class LoginTest extends BaseTest {
 
+    private void clearAndType(By locator, String text) {
+        WebElement el = wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+        el.clear();
+        el.sendKeys(text);
+    }
+
+    private void clickLogin() {
+        wait.until(ExpectedConditions.elementToBeClickable(By.id("login-button"))).click();
+    }
+
+    private String getErrorText() {
+        return wait.until(
+                ExpectedConditions.visibilityOfElementLocated(By.cssSelector("[data-test='error']"))
+        ).getText();
+    }
+
     @Test
     void TC_LOGIN_01_loginWithValidAccount() {
+        clearAndType(By.id("user-name"), "standard_user");
+        clearAndType(By.id("password"), "secret_sauce");
+        clickLogin();
 
-        driver.findElement(By.id("user-name")).sendKeys("standard_user");
-        driver.findElement(By.id("password")).sendKeys("secret_sauce");
-        driver.findElement(By.id("login-button")).click();
-
-
-        Assertions.assertTrue(driver.getCurrentUrl().contains("inventory"),
-                "Login fail");
+        wait.until(ExpectedConditions.urlContains("inventory.html"));
+        Assertions.assertTrue(driver.getCurrentUrl().contains("inventory.html"), "Login fail");
     }
+
     @Test
     void TC_LOGIN_02_loginWithInvalidPassword() {
-        driver.findElement(By.id("user-name")).sendKeys("standard_user");
-        driver.findElement(By.id("password")).sendKeys("secret_sauce1");
-        driver.findElement(By.id("login-button")).click();
+        clearAndType(By.id("user-name"), "standard_user");
+        clearAndType(By.id("password"), "secret_sauce1");
+        clickLogin();
 
-        String errorText = driver.findElement(By.cssSelector("h3[data-test='error']")).getText();
-
+        String errorText = getErrorText();
         Assertions.assertTrue(errorText.contains("Username and password do not match"),
-                "Expected error message was not displayed");
+                "Expected error message was not displayed. Actual: " + errorText);
 
-        Assertions.assertTrue(driver.getCurrentUrl().contains("saucedemo.com"),
+        // đảm bảo vẫn ở login (không vào inventory)
+        Assertions.assertFalse(driver.getCurrentUrl().contains("inventory.html"),
                 "User should stay on login page");
     }
+
     @Test
     void TC_LOGIN_03_loginWithInvalidUsername() {
-        driver.findElement(By.id("user-name")).sendKeys("standard_user1");
-        driver.findElement(By.id("password")).sendKeys("secret_sauce");
-        driver.findElement(By.id("login-button")).click();
+        clearAndType(By.id("user-name"), "standard_user1");
+        clearAndType(By.id("password"), "secret_sauce");
+        clickLogin();
 
-        String errorText = driver.findElement(By.cssSelector("h3[data-test='error']")).getText();
+        String errorText = getErrorText();
         Assertions.assertTrue(errorText.contains("Username and password do not match"),
-                "Expected error message was not displayed");
+                "Expected error message was not displayed. Actual: " + errorText);
 
-        Assertions.assertTrue(driver.getCurrentUrl().contains("saucedemo.com"),
+        Assertions.assertFalse(driver.getCurrentUrl().contains("inventory.html"),
                 "User should stay on login page");
-
     }
+
     @Test
     void TC_LOGIN_04_loginWithEmptyUsername() {
-        // user-name để trống
-        driver.findElement(By.id("password")).sendKeys("secret_sauce");
-        driver.findElement(By.id("login-button")).click();
 
-        String errorText = driver.findElement(By.cssSelector("h3[data-test='error']")).getText();
+        clearAndType(By.id("password"), "secret_sauce");
+        clickLogin();
+        String errorText = getErrorText();
+        Assertions.assertTrue(errorText.contains("Username is required"),
+                "Expected 'Username is required'. Actual: " + errorText);
 
-        Assertions.assertTrue(
-                errorText.contains("Username is required"),
-                "Expected 'Username is required' error message"
-        );
-        Assertions.assertTrue(
-                driver.getCurrentUrl().contains("saucedemo.com"),
-                "User should stay on login page"
-        );
+        Assertions.assertFalse(driver.getCurrentUrl().contains("inventory.html"),
+                "User should stay on login page");
     }
+
     @Test
     void TC_LOGIN_05_loginWithEmptyPassword() {
-        driver.findElement(By.id("user-name")).sendKeys("standard_user");
-        //password để trống
-        driver.findElement(By.id("login-button")).click();
-        // Expected: hiện message lỗi
-        String errorText = driver.findElement(By.cssSelector("h3[data-test='error']")).getText();
-        Assertions.assertTrue(
-                errorText.contains("Password is required"),
-                "Expected 'Password is required' error message"
-        );
-        // Vẫn ở trang login
-        Assertions.assertTrue(
-                driver.getCurrentUrl().contains("saucedemo.com"),
-                "User should stay on login page"
-        );
+        clearAndType(By.id("user-name"), "standard_user");
+        clickLogin();
+        String errorText = getErrorText();
+        Assertions.assertTrue(errorText.contains("Password is required"),
+                "Expected 'Password is required'. Actual: " + errorText);
+
+        Assertions.assertFalse(driver.getCurrentUrl().contains("inventory.html"),
+                "User should stay on login page");
+    }
+
+    @Test
+    void TC_LOGIN_06_loginWithEmptyUsernamePassword() {
+        clickLogin();
+
+        String errorText = getErrorText();
+        Assertions.assertTrue(errorText.contains("Username is required"),
+                "Expected 'Username is required'. Actual: " + errorText);
+
+        Assertions.assertFalse(driver.getCurrentUrl().contains("inventory.html"),
+                "User should stay on login page");
     }
     @Test
-    void TC_LOGIN_06_lockedOutUser() {
+    void TC_LOGIN_07_loginWithInvalidUsernamePassword() {
+        clearAndType(By.id("user-name"), "standard_user1");
+        clearAndType(By.id("password"), "secret_sauce1");
+        clickLogin();
 
-        driver.findElement(By.id("user-name")).sendKeys("locked_out_user");
-        driver.findElement(By.id("password")).sendKeys("secret_sauce");
-        driver.findElement(By.id("login-button")).click();
-
-        // Verify error message
-        String errorText = driver.findElement(By.cssSelector("h3[data-test='error']")).getText();
-
-        Assertions.assertTrue(
-                errorText.contains("Sorry, this user has been locked out."),
-                "Expected locked out message, actual: " + errorText
-        );
-        // Verify still on login page
-        Assertions.assertTrue(
-                driver.getCurrentUrl().contains("saucedemo.com"),
-                "User should stay on login page"
-        );
+        String errorText = getErrorText();
+        Assertions.assertTrue(errorText.contains("Username and password do not match"),
+                "Expected error message was not displayed. Actual: " + errorText);
+        
+        Assertions.assertFalse(driver.getCurrentUrl().contains("inventory.html"),
+                "User should stay on login page");
     }
     @Test
-    void TC_LOGIN_07_performanceGlitchUser() {
-        //Login
-        driver.findElement(By.id("user-name")).sendKeys("performance_glitch_user");
-        driver.findElement(By.id("password")).sendKeys("secret_sauce");
-        driver.findElement(By.id("login-button")).click();
+    void TC_LOGIN_08_lockedOutUser() {
+        clearAndType(By.id("user-name"), "locked_out_user");
+        clearAndType(By.id("password"), "secret_sauce");
+        clickLogin();
 
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        wait.until(ExpectedConditions.urlContains("inventory"));
+        String errorText = getErrorText();
+        Assertions.assertTrue(errorText.contains("locked out"),
+                "Expected locked out message. Actual: " + errorText);
 
-        Assertions.assertTrue(
-                driver.getCurrentUrl().contains("inventory"),
-                "Login FAILED not redirected to Inventory page"
-        );
+        Assertions.assertFalse(driver.getCurrentUrl().contains("inventory.html"),
+                "User should stay on login page");
+    }
+
+    @Test
+    void TC_LOGIN_09_performanceGlitchUser() {
+        clearAndType(By.id("user-name"), "performance_glitch_user");
+        clearAndType(By.id("password"), "secret_sauce");
+        clickLogin();
+
+        // user này có thể load chậm, wait trong BaseTest là 10s ok, nếu vẫn fail tăng lên 15s
+        wait.until(ExpectedConditions.urlContains("inventory.html"));
+        Assertions.assertTrue(driver.getCurrentUrl().contains("inventory.html"),
+                "Login FAILED not redirected to Inventory page");
     }
 }

@@ -5,6 +5,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -27,26 +28,46 @@ public class BaseTest {
         driver = new ChromeDriver(options);
         driver.manage().window().maximize();
 
-        wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        // tăng lên 10s cho ổn định, nhất là performance_glitch_user
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        driver.get("https://www.saucedemo.com/");
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("user-name")));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("password")));
+        wait.until(ExpectedConditions.elementToBeClickable(By.id("login-button")));
     }
 
     protected void login(String username, String password) {
-        driver.get("https://www.saucedemo.com/");
+        // đảm bảo đang ở đúng trang login (nếu test trước có navigate chỗ khác)
+        if (!driver.getCurrentUrl().contains("saucedemo.com")) {
+            driver.get("https://www.saucedemo.com/");
+        }
 
-        driver.findElement(By.id("user-name")).clear();
-        driver.findElement(By.id("user-name")).sendKeys(username);
+        WebElement user = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("user-name")));
+        WebElement pass = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("password")));
 
-        driver.findElement(By.id("password")).clear();
-        driver.findElement(By.id("password")).sendKeys(password);
+        user.clear();
+        user.sendKeys(username);
 
-        driver.findElement(By.id("login-button")).click();
+        pass.clear();
+        pass.sendKeys(password);
 
-        // wait until login success
-        wait.until(ExpectedConditions.urlContains("inventory"));
+        wait.until(ExpectedConditions.elementToBeClickable(By.id("login-button"))).click();
+    }
+
+    protected void loginExpectSuccess(String username, String password) {
+        login(username, password);
+        wait.until(ExpectedConditions.urlContains("inventory.html"));
+    }
+
+    protected String getErrorMessage() {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector("[data-test='error']")
+        )).getText();
     }
 
     protected void openCart() {
-        driver.findElement(By.className("shopping_cart_link")).click();
+        wait.until(ExpectedConditions.elementToBeClickable(By.className("shopping_cart_link"))).click();
     }
 
     protected int getCartBadgeCount() {
