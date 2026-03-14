@@ -4,6 +4,7 @@ import base.BaseTest;
 import data.CheckoutData;
 import data.LoginData;
 import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import pages.CartPage;
 import pages.CheckoutPage;
@@ -11,9 +12,20 @@ import pages.InventoryPage;
 import pages.LoginPage;
 
 public class CheckoutTest extends BaseTest {
-    private void openCheckoutWithBackpack(LoginPage loginPage,
-                                          InventoryPage inventoryPage,
-                                          CartPage cartPage) {
+    private LoginPage loginPage;
+    private InventoryPage inventoryPage;
+    private CartPage cartPage;
+    private CheckoutPage checkoutPage;
+
+    @BeforeMethod
+    public void setUpPages() {
+        loginPage = new LoginPage(driver, wait);
+        inventoryPage = new InventoryPage(driver);
+        cartPage = new CartPage(driver);
+        checkoutPage = new CheckoutPage(driver);
+    }
+
+    private void openCheckoutWithBackpack() {
         loginPage.login(LoginData.VALID_USER, LoginData.VALID_PASS);
         inventoryPage.addBackpackToCart();
         inventoryPage.openCart();
@@ -21,12 +33,8 @@ public class CheckoutTest extends BaseTest {
     }
 
     @Test
-        public void TC_CHECKOUT_01_checkoutSuccessfully() {
-        LoginPage loginPage = new LoginPage(driver, wait);
-        InventoryPage inventoryPage = new InventoryPage(driver);
-        CartPage cartPage = new CartPage(driver);
-        CheckoutPage checkoutPage = new CheckoutPage(driver);
-        openCheckoutWithBackpack(loginPage, inventoryPage, cartPage);
+    public void TC_CHECKOUT_01_checkoutSuccessfully() {
+        openCheckoutWithBackpack();
 
         checkoutPage.fillCheckoutInfo(
                 CheckoutData.FIRST_NAME,
@@ -49,12 +57,7 @@ public class CheckoutTest extends BaseTest {
 
     @Test
     public void TC_CHECKOUT_02_missingFirstName() {
-        LoginPage loginPage = new LoginPage(driver, wait);
-        InventoryPage inventoryPage = new InventoryPage(driver);
-        CartPage cartPage = new CartPage(driver);
-        CheckoutPage checkoutPage = new CheckoutPage(driver);
-
-        openCheckoutWithBackpack(loginPage, inventoryPage, cartPage);
+        openCheckoutWithBackpack();
         checkoutPage.fillCheckoutInfo(
                 "",
                 CheckoutData.LAST_NAME,
@@ -63,20 +66,15 @@ public class CheckoutTest extends BaseTest {
         checkoutPage.clickContinue();
         String error = checkoutPage.getErrorText();
 
-                Assert.assertTrue(
+        Assert.assertTrue(
                 error.contains("First Name is required"),
                 "Expected 'First Name is required'. Actual: " + error
         );
     }
 
     @Test
-        public void TC_CHECKOUT_03_missingLastName() {
-        LoginPage loginPage = new LoginPage(driver, wait);
-        InventoryPage inventoryPage = new InventoryPage(driver);
-        CartPage cartPage = new CartPage(driver);
-        CheckoutPage checkoutPage = new CheckoutPage(driver);
-
-        openCheckoutWithBackpack(loginPage, inventoryPage, cartPage);
+    public void TC_CHECKOUT_03_missingLastName() {
+        openCheckoutWithBackpack();
         checkoutPage.fillCheckoutInfo(
                 CheckoutData.FIRST_NAME,
                 "",
@@ -86,20 +84,15 @@ public class CheckoutTest extends BaseTest {
 
         String error = checkoutPage.getErrorText();
 
-                Assert.assertTrue(
+        Assert.assertTrue(
                 error.contains("Last Name is required"),
                 "Expected 'Last Name is required'. Actual: " + error
         );
     }
+
     @Test
-        public void TC_CHECKOUT_04_missingPostalCode() {
-
-        LoginPage loginPage = new LoginPage(driver, wait);
-        InventoryPage inventoryPage = new InventoryPage(driver);
-        CartPage cartPage = new CartPage(driver);
-        CheckoutPage checkoutPage = new CheckoutPage(driver);
-
-        openCheckoutWithBackpack(loginPage, inventoryPage, cartPage);
+    public void TC_CHECKOUT_04_missingPostalCode() {
+        openCheckoutWithBackpack();
         checkoutPage.fillCheckoutInfo(
                 CheckoutData.FIRST_NAME,
                 CheckoutData.LAST_NAME,
@@ -107,35 +100,25 @@ public class CheckoutTest extends BaseTest {
         );
         checkoutPage.clickContinue();
         String error = checkoutPage.getErrorText();
-                Assert.assertTrue(
+        Assert.assertTrue(
                 error.contains("Postal Code is required"),
                 "Expected 'Postal Code is required'. Actual: " + error
         );
     }
 
     @Test
-        public void TC_CHECKOUT_05_cancelCheckoutStep1() {
-        LoginPage loginPage = new LoginPage(driver, wait);
-        InventoryPage inventoryPage = new InventoryPage(driver);
-        CartPage cartPage = new CartPage(driver);
-        CheckoutPage checkoutPage = new CheckoutPage(driver);
-
-        openCheckoutWithBackpack(loginPage, inventoryPage, cartPage);
+    public void TC_CHECKOUT_05_cancelCheckoutStep1() {
+        openCheckoutWithBackpack();
         checkoutPage.clickCancel();
-                Assert.assertTrue(
+        Assert.assertTrue(
                 driver.getCurrentUrl().contains("cart"),
                 "Should navigate back to cart page"
         );
     }
 
     @Test
-        public void TC_CHECKOUT_06_cancelCheckoutStep2() {
-        LoginPage loginPage = new LoginPage(driver, wait);
-        InventoryPage inventoryPage = new InventoryPage(driver);
-        CartPage cartPage = new CartPage(driver);
-        CheckoutPage checkoutPage = new CheckoutPage(driver);
-
-        openCheckoutWithBackpack(loginPage, inventoryPage, cartPage);
+    public void TC_CHECKOUT_06_cancelCheckoutStep2() {
+        openCheckoutWithBackpack();
 
         checkoutPage.fillCheckoutInfo(
                 CheckoutData.FIRST_NAME,
@@ -145,18 +128,14 @@ public class CheckoutTest extends BaseTest {
         checkoutPage.clickContinue();
         checkoutPage.clickCancel();
 
-                Assert.assertTrue(
+        Assert.assertTrue(
                 driver.getCurrentUrl().contains("inventory"),
                 "Should navigate back to inventory page"
         );
     }
 
     @Test
-        public void TC_CHECKOUT_07_emptyCartStillCheckout() {
-        LoginPage loginPage = new LoginPage(driver, wait);
-        CartPage cartPage = new CartPage(driver);
-        CheckoutPage checkoutPage = new CheckoutPage(driver);
-
+    public void TC_CHECKOUT_07_emptyCartStillCheckout() {
         loginPage.login(LoginData.VALID_USER, LoginData.VALID_PASS);
         openCart();
         Assert.assertEquals(
@@ -171,20 +150,16 @@ public class CheckoutTest extends BaseTest {
                 CheckoutData.ZIP_CODE
         );
         checkoutPage.clickContinue();
-                Assert.assertTrue(
+        Assert.assertTrue(
                 driver.getCurrentUrl().contains("checkout-step-two"),
                 "Should be on overview page"
         );
-                Assert.fail("BUG: Checkout succeeds with empty cart");
+        Assert.fail("BUG: Checkout succeeds with empty cart");
     }
-    @Test
-        public void TC_CHECKOUT_08_backHomeAfterFinish() {
-        LoginPage loginPage = new LoginPage(driver, wait);
-        InventoryPage inventoryPage = new InventoryPage(driver);
-        CartPage cartPage = new CartPage(driver);
-        CheckoutPage checkoutPage = new CheckoutPage(driver);
 
-        openCheckoutWithBackpack(loginPage, inventoryPage, cartPage);
+    @Test
+    public void TC_CHECKOUT_08_backHomeAfterFinish() {
+        openCheckoutWithBackpack();
 
         checkoutPage.fillCheckoutInfo(
                 CheckoutData.FIRST_NAME,
@@ -208,11 +183,6 @@ public class CheckoutTest extends BaseTest {
 
     @Test
     public void TC_CHECKOUT_09_verifyItemTotalTaxAndTotal() {
-        LoginPage loginPage = new LoginPage(driver, wait);
-        InventoryPage inventoryPage = new InventoryPage(driver);
-        CartPage cartPage = new CartPage(driver);
-        CheckoutPage checkoutPage = new CheckoutPage(driver);
-
         loginPage.login(LoginData.VALID_USER, LoginData.VALID_PASS);
         inventoryPage.addBackpackToCart();
         inventoryPage.addBikeLightToCart();
@@ -251,12 +221,7 @@ public class CheckoutTest extends BaseTest {
     }
     @Test
     public void TC_CHECKOUT_10_firstNameOnlySpaces() {
-        LoginPage loginPage = new LoginPage(driver, wait);
-        InventoryPage inventoryPage = new InventoryPage(driver);
-        CartPage cartPage = new CartPage(driver);
-        CheckoutPage checkoutPage = new CheckoutPage(driver);
-
-        openCheckoutWithBackpack(loginPage, inventoryPage, cartPage);
+        openCheckoutWithBackpack();
 
         checkoutPage.fillCheckoutInfo(
                 "   ",

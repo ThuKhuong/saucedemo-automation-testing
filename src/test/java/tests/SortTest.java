@@ -12,21 +12,17 @@ import java.util.List;
 
 public class SortTest extends BaseTest {
     private LoginPage loginPage;
+    private InventoryPage inventoryPage;
 
     @BeforeMethod
     public void setUpPage() {
         loginPage = new LoginPage(driver, wait);
+        inventoryPage = new InventoryPage(driver);
     }
 
     @Test
     public void TC_SORT_01_sortProductsByNameAToZ() {
-
-
-        LoginPage loginPage = new LoginPage(driver, wait);
-        InventoryPage inventoryPage = new InventoryPage(driver);
-
         loginPage.login(LoginData.VALID_USER, LoginData.VALID_PASS);
-
         inventoryPage.sortByNameAToZ();
 
         String firstItem = inventoryPage.getFirstProductName();
@@ -40,10 +36,6 @@ public class SortTest extends BaseTest {
 
     @Test
     public void TC_SORT_02_sortProductsByNameZToA() {
-
-        LoginPage loginPage = new LoginPage(driver, wait);
-        InventoryPage inventoryPage = new InventoryPage(driver);
-
         loginPage.login(LoginData.VALID_USER, LoginData.VALID_PASS);
 
         inventoryPage.sortByNameZToA();
@@ -59,16 +51,10 @@ public class SortTest extends BaseTest {
 
     @Test
     public void TC_SORT_03_sortProductsByPriceLowToHigh() {
-
-        LoginPage loginPage = new LoginPage(driver, wait);
-        InventoryPage inventoryPage = new InventoryPage(driver);
-
         loginPage.login(LoginData.VALID_USER, LoginData.VALID_PASS);
-
         inventoryPage.sortByPriceLowToHigh();
 
         List<Double> prices = inventoryPage.getAllProductPrices();
-
         Assert.assertTrue(
                 prices.get(0) <= prices.get(prices.size() - 1),
                 "Products should be sorted low → high"
@@ -77,16 +63,10 @@ public class SortTest extends BaseTest {
 
     @Test
     public void TC_SORT_04_sortProductsByPriceHighToLow() {
-
-        LoginPage loginPage = new LoginPage(driver, wait);
-        InventoryPage inventoryPage = new InventoryPage(driver);
-
         loginPage.login(LoginData.VALID_USER, LoginData.VALID_PASS);
-
         inventoryPage.sortByPriceHighToLow();
 
         List<Double> prices = inventoryPage.getAllProductPrices();
-
         Assert.assertTrue(
                 prices.get(0) >= prices.get(prices.size() - 1),
                 "Products should be sorted high → low"

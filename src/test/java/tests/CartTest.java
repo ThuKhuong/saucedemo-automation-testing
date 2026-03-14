@@ -3,6 +3,7 @@ package tests;
 import base.BaseTest;
 import data.LoginData;
 import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import pages.CartPage;
 import pages.InventoryPage;
@@ -10,10 +11,19 @@ import pages.LoginPage;
 
 public class CartTest extends BaseTest {
 
+    private LoginPage loginPage;
+    private InventoryPage inventoryPage;
+    private CartPage cartPage;
+
+    @BeforeMethod
+    public void setUpPages() {
+        loginPage = new LoginPage(driver, wait);
+        inventoryPage = new InventoryPage(driver);
+        cartPage = new CartPage(driver);
+    }
+
     @Test
     public void TC_CART_01_addOneProductToCart() {
-        LoginPage loginPage = new LoginPage(driver, wait);
-        InventoryPage inventoryPage = new InventoryPage(driver);
         loginPage.login(LoginData.VALID_USER, LoginData.VALID_PASS);
         inventoryPage.addBackpackToCart();
         Assert.assertEquals(
@@ -25,8 +35,6 @@ public class CartTest extends BaseTest {
 
     @Test
     public void TC_CART_02_addTwoProductToCart() {
-        LoginPage loginPage = new LoginPage(driver, wait);
-        InventoryPage inventoryPage = new InventoryPage(driver);
         loginPage.login(LoginData.VALID_USER, LoginData.VALID_PASS);
         inventoryPage.addBackpackToCart();
         inventoryPage.addBikeLightToCart();
@@ -38,10 +46,7 @@ public class CartTest extends BaseTest {
         );
     }
     @Test
-        public void TC_CART_03_removeOneProductFromCart() {
-
-        LoginPage loginPage = new LoginPage(driver, wait);
-        InventoryPage inventoryPage = new InventoryPage(driver);
+    public void TC_CART_03_removeOneProductFromCart() {
         loginPage.login(LoginData.VALID_USER, LoginData.VALID_PASS);
         inventoryPage.addBackpackToCart();
         inventoryPage.addBikeLightToCart();
@@ -56,9 +61,6 @@ public class CartTest extends BaseTest {
 
     @Test
     public void TC_CART_04_verifyProductNameInCart() {
-        LoginPage loginPage = new LoginPage(driver, wait);
-        InventoryPage inventoryPage = new InventoryPage(driver);
-        CartPage cartPage = new CartPage(driver);
         loginPage.login(LoginData.VALID_USER, LoginData.VALID_PASS);
         inventoryPage.addBackpackToCart();
         inventoryPage.openCart();
@@ -74,10 +76,6 @@ public class CartTest extends BaseTest {
 
     @Test
     public void TC_CART_05_continueShopping() {
-        LoginPage loginPage = new LoginPage(driver, wait);
-        InventoryPage inventoryPage = new InventoryPage(driver);
-        CartPage cartPage = new CartPage(driver);
-
         loginPage.login(LoginData.VALID_USER, LoginData.VALID_PASS);
 
         inventoryPage.addBackpackToCart();
@@ -92,10 +90,6 @@ public class CartTest extends BaseTest {
 
     @Test
     public void TC_CART_06_removeItemInCart() {
-        LoginPage loginPage = new LoginPage(driver, wait);
-        InventoryPage inventoryPage = new InventoryPage(driver);
-        CartPage cartPage = new CartPage(driver);
-
         loginPage.login(LoginData.VALID_USER, LoginData.VALID_PASS);
         inventoryPage.addBackpackToCart();
         inventoryPage.openCart();
@@ -109,8 +103,6 @@ public class CartTest extends BaseTest {
 
     @Test
     public void TC_CART_07_removeItemInInventory() {
-        LoginPage loginPage = new LoginPage(driver, wait);
-        InventoryPage inventoryPage = new InventoryPage(driver);
         loginPage.login(LoginData.VALID_USER, LoginData.VALID_PASS);
 
         inventoryPage.addBackpackToCart();
