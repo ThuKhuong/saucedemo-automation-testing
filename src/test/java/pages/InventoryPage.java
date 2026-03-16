@@ -50,6 +50,10 @@ public class InventoryPage {
     public String getCartBadgeText() {
         return driver.findElement(cartBadge).getText();
     }
+
+    public int getCartBadgeCount() {
+        return driver.findElements(cartBadge).size();
+    }
     public void sortByNameAToZ() {
         Select select = new Select(driver.findElement(sortDropdown));
         select.selectByVisibleText("Name (A to Z)");
@@ -88,5 +92,9 @@ public class InventoryPage {
     public void logout() {
         openMenu();
         clickLogout();
+    }
+
+    public boolean isOnInventoryPage() {
+        return driver.getCurrentUrl().contains("inventory");
     }
 }

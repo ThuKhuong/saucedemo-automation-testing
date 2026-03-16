@@ -78,4 +78,16 @@ public class CheckoutPage {
         String text = driver.findElement(totalLabel).getText(); // Total: $32.39
         return Double.parseDouble(text.replace("Total: $", "").trim());
     }
+    public boolean isOnCart() {
+        return driver.getCurrentUrl().contains("cart");
+    }
+    public boolean isOnInventory() {
+        return driver.getCurrentUrl().contains("inventory");
+    }
+    public boolean isOnCheckoutStepTwo() {
+        return driver.getCurrentUrl().contains("checkout-step-two");
+    }
+    public boolean isOnCheckoutCompletePage() {
+        return driver.getCurrentUrl().contains("checkout-complete");
+    }
 }

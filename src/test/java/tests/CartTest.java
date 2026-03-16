@@ -21,7 +21,6 @@ public class CartTest extends BaseTest {
         inventoryPage = new InventoryPage(driver);
         cartPage = new CartPage(driver);
     }
-
     @Test
     public void TC_CART_01_addOneProductToCart() {
         loginPage.login(LoginData.VALID_USER, LoginData.VALID_PASS);
@@ -32,9 +31,8 @@ public class CartTest extends BaseTest {
                 "Cart badge should be 1"
         );
     }
-
     @Test
-    public void TC_CART_02_addTwoProductToCart() {
+    public void TC_CART_02_addTwoProductsToCart() {
         loginPage.login(LoginData.VALID_USER, LoginData.VALID_PASS);
         inventoryPage.addBackpackToCart();
         inventoryPage.addBikeLightToCart();
@@ -58,7 +56,6 @@ public class CartTest extends BaseTest {
                 "Cart badge should display 1"
         );
     }
-
     @Test
     public void TC_CART_04_verifyProductNameInCart() {
         loginPage.login(LoginData.VALID_USER, LoginData.VALID_PASS);
@@ -73,7 +70,6 @@ public class CartTest extends BaseTest {
                 "Product name in cart should be correct"
         );
     }
-
     @Test
     public void TC_CART_05_continueShopping() {
         loginPage.login(LoginData.VALID_USER, LoginData.VALID_PASS);
@@ -83,11 +79,10 @@ public class CartTest extends BaseTest {
         cartPage.clickContinueShopping();
 
         Assert.assertTrue(
-                driver.getCurrentUrl().contains("inventory"),
+                inventoryPage.isOnInventoryPage(),
                 "Should navigate back to inventory page"
         );
     }
-
     @Test
     public void TC_CART_06_removeItemInCart() {
         loginPage.login(LoginData.VALID_USER, LoginData.VALID_PASS);
@@ -95,12 +90,11 @@ public class CartTest extends BaseTest {
         inventoryPage.openCart();
         cartPage.removeBackpack();
         Assert.assertEquals(
-            getCartBadgeCount(),
+            inventoryPage.getCartBadgeCount(),
             0,
                 "Cart badge should disappear after removing item"
         );
     }
-
     @Test
     public void TC_CART_07_removeItemInInventory() {
         loginPage.login(LoginData.VALID_USER, LoginData.VALID_PASS);
@@ -108,7 +102,7 @@ public class CartTest extends BaseTest {
         inventoryPage.addBackpackToCart();
         inventoryPage.removeBackpack();
         Assert.assertEquals(
-            getCartBadgeCount(),
+            inventoryPage.getCartBadgeCount(),
             0,
                 "Cart badge should disappear after removing item"
         );

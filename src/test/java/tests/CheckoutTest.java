@@ -50,7 +50,7 @@ public class CheckoutTest extends BaseTest {
         );
 
         Assert.assertTrue(
-                driver.getCurrentUrl().contains("checkout-complete"),
+                checkoutPage.isOnCheckoutCompletePage(),
                 "Should navigate to checkout complete page"
         );
     }
@@ -111,7 +111,7 @@ public class CheckoutTest extends BaseTest {
         openCheckoutWithBackpack();
         checkoutPage.clickCancel();
         Assert.assertTrue(
-                driver.getCurrentUrl().contains("cart"),
+                checkoutPage.isOnCart(),
                 "Should navigate back to cart page"
         );
     }
@@ -129,20 +129,21 @@ public class CheckoutTest extends BaseTest {
         checkoutPage.clickCancel();
 
         Assert.assertTrue(
-                driver.getCurrentUrl().contains("inventory"),
+                checkoutPage.isOnInventory(),
                 "Should navigate back to inventory page"
         );
     }
-
     @Test
     public void TC_CHECKOUT_07_emptyCartStillCheckout() {
         loginPage.login(LoginData.VALID_USER, LoginData.VALID_PASS);
-        openCart();
+                inventoryPage.openCart();
+
         Assert.assertEquals(
                 driver.findElements(org.openqa.selenium.By.className("cart_item")).size(),
                 0,
                 "Precondition failed: cart is not empty"
         );
+
         cartPage.clickCheckout();
         checkoutPage.fillCheckoutInfo(
                 CheckoutData.FIRST_NAME,
@@ -150,13 +151,12 @@ public class CheckoutTest extends BaseTest {
                 CheckoutData.ZIP_CODE
         );
         checkoutPage.clickContinue();
-        Assert.assertTrue(
-                driver.getCurrentUrl().contains("checkout-step-two"),
-                "Should be on overview page"
-        );
-        Assert.fail("BUG: Checkout succeeds with empty cart");
-    }
 
+        Assert.assertFalse(
+                checkoutPage.isOnCheckoutStepTwo(),
+                "BUG: System allows checkout with empty cart"
+        );
+    }
     @Test
     public void TC_CHECKOUT_08_backHomeAfterFinish() {
         openCheckoutWithBackpack();
@@ -171,11 +171,11 @@ public class CheckoutTest extends BaseTest {
         checkoutPage.clickBackHome();
 
         Assert.assertTrue(
-                driver.getCurrentUrl().contains("inventory"),
+                checkoutPage.isOnInventory(),
                 "Should navigate back to inventory page"
         );
         Assert.assertEquals(
-                getCartBadgeCount(),
+                inventoryPage.getCartBadgeCount(),
                 0,
                 "Cart badge should be reset after finishing checkout"
         );
@@ -200,48 +200,69 @@ public class CheckoutTest extends BaseTest {
         double actualItemTotal = checkoutPage.getItemTotal();
         double actualTax = checkoutPage.getTax();
         double actualTotal = checkoutPage.getTotal();
-        Assert.assertEquals(
-                actualItemTotal,
-                expectedItemTotal,
-                0.01,
-                "Item total is incorrect"
-        );
-        Assert.assertEquals(
-                actualTax,
-                actualItemTotal * 0.08,
-                0.01,
-                "Tax is incorrect"
-        );
-        Assert.assertEquals(
-                actualTotal,
-                actualItemTotal + actualTax,
-                0.01,
-                "Total is incorrect"
-        );
+
+        double expectedTax = Math.round(expectedItemTotal * 0.08 * 100.0) / 100.0;
+        double expectedTotal = Math.round((expectedItemTotal + expectedTax) * 100.0) / 100.0;
+
+        Assert.assertEquals(actualItemTotal, expectedItemTotal, 0.01, "Item total is incorrect");
+        Assert.assertEquals(actualTax, expectedTax, 0.01, "Tax is incorrect");
+        Assert.assertEquals(actualTotal, expectedTotal, 0.01, "Total is incorrect");
     }
     @Test
     public void TC_CHECKOUT_10_firstNameOnlySpaces() {
         openCheckoutWithBackpack();
-
         checkoutPage.fillCheckoutInfo(
                 "   ",
                 CheckoutData.LAST_NAME,
                 CheckoutData.ZIP_CODE
         );
         checkoutPage.clickContinue();
-        Assert.fail("BUG: System allows checkout when First Name contains only spaces");
+        Assert.assertFalse(
+                checkoutPage.isOnCheckoutStepTwo(),
+                "BUG: System allows checkout when First Name contains only spaces"
+        );
     }
     @Test
-    public void TC_CHECKOUT_11_allFieldsOnlySpaces() {
+    public void TC_CHECKOUT_11_lastNameOnlySpaces() {
         openCheckoutWithBackpack();
 
-        checkoutPage.fillCheckoutInfo("   ", "   ", "   ");
+        checkoutPage.fillCheckoutInfo(
+                CheckoutData.FIRST_NAME,
+                "   ",
+                CheckoutData.ZIP_CODE
+        );
         checkoutPage.clickContinue();
 
-        boolean movedToNextPage = driver.getCurrentUrl().contains("checkout-step-two");
+        Assert.assertFalse(
+                checkoutPage.isOnCheckoutStepTwo(),
+                "BUG: System allows checkout when Last Name contains only spaces"
+        );
+    }
+    @Test
+    public void TC_CHECKOUT_12_postalCodeOnlySpaces() {
+        openCheckoutWithBackpack();
+
+        checkoutPage.fillCheckoutInfo(
+                CheckoutData.FIRST_NAME,
+                CheckoutData.LAST_NAME,
+                "  "
+        );
+        checkoutPage.clickContinue();
 
         Assert.assertFalse(
-                movedToNextPage,
+                checkoutPage.isOnCheckoutStepTwo(),
+                "BUG: System allows checkout when Postal Code contains only spaces"
+        );
+    }
+    @Test
+    public void TC_CHECKOUT_13_allFieldsOnlySpaces() {
+        openCheckoutWithBackpack();
+
+        checkoutPage.fillCheckoutInfo("  ", "  ", "  ");
+        checkoutPage.clickContinue();
+
+        Assert.assertFalse(
+                checkoutPage.isOnCheckoutStepTwo(),
                 "BUG: System allows checkout when all fields contain only spaces"
         );
     }

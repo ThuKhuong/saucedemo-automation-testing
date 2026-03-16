@@ -33,14 +33,7 @@ public class BaseTest {
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("password")));
         wait.until(ExpectedConditions.elementToBeClickable(By.id("login-button")));
     }
-
-    protected void openCart() {
-        wait.until(ExpectedConditions.elementToBeClickable(By.className("shopping_cart_link"))).click();
-    }
-
-    protected int getCartBadgeCount() {
-        return driver.findElements(By.className("shopping_cart_badge")).size();
-    }
+    
     @AfterMethod
     public void tearDown() {
         if (driver != null) {
