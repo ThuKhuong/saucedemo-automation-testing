@@ -33,7 +33,7 @@ public class BaseTest {
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("password")));
         wait.until(ExpectedConditions.elementToBeClickable(By.id("login-button")));
     }
-    
+
     @AfterMethod
     public void tearDown() {
         if (driver != null) {

@@ -16,7 +16,7 @@ public class LogoutTest extends BaseTest {
     @BeforeMethod
     public void setUpPage() {
         loginPage = new LoginPage(driver, wait);
-        inventoryPage = new InventoryPage(driver);
+        inventoryPage = new InventoryPage(driver, wait);
     }
     @Test
     public void TC_LOGOUT_01_logoutSuccessfully() {
@@ -26,7 +26,8 @@ public class LogoutTest extends BaseTest {
         inventoryPage.logout();
         wait.until(ExpectedConditions.visibilityOfElementLocated(
                 org.openqa.selenium.By.id("login-button")));
-        Assert.assertTrue(driver.getCurrentUrl().contains("saucedemo.com"),
+        Assert.assertTrue(driver.getCurrentUrl().contains("saucedemo.com")
+                        && !driver.getCurrentUrl().contains("inventory"),
                 "Logout failed");
     }
 }

@@ -46,28 +46,34 @@ public class CheckoutPage {
         enterPostalCode(zip);
     }
     public void clickContinue() {
+
         driver.findElement(continueBtn).click();
     }
     public void clickFinish() {
+
         driver.findElement(finishBtn).click();
     }
     public void clickCancel() {
+
         driver.findElement(cancelBtn).click();
     }
 
     public void clickBackHome() {
+
         driver.findElement(backHomeBtn).click();
     }
 
     public String getErrorText() {
+
         return driver.findElement(errorMsg).getText();
     }
 
     public String getCompleteHeader() {
+
         return driver.findElement(completeHeader).getText();
     }
     public double getItemTotal() {
-        String text = driver.findElement(itemTotalLabel).getText(); // Item total: $29.99
+        String text = driver.findElement(itemTotalLabel).getText();
         return Double.parseDouble(text.replace("Item total: $", "").trim());
     }
     public double getTax() {
@@ -85,9 +91,11 @@ public class CheckoutPage {
         return driver.getCurrentUrl().contains("inventory");
     }
     public boolean isOnCheckoutStepTwo() {
+
         return driver.getCurrentUrl().contains("checkout-step-two");
     }
     public boolean isOnCheckoutCompletePage() {
+
         return driver.getCurrentUrl().contains("checkout-complete");
     }
 }

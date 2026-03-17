@@ -2,16 +2,25 @@ package pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.util.List;
 
 public class InventoryPage {
 
     private WebDriver driver;
+    private WebDriverWait wait;
 
     public InventoryPage(WebDriver driver) {
         this.driver = driver;
+        this.wait = null;
+    }
+
+    public InventoryPage(WebDriver driver, WebDriverWait wait) {
+        this.driver = driver;
+        this.wait = wait;
     }
 
     private By backpackAddBtn = By.id("add-to-cart-sauce-labs-backpack");
@@ -75,6 +84,7 @@ public class InventoryPage {
     }
 
     public String getFirstProductName() {
+
         return driver.findElements(productNames).get(0).getText();
     }
     public List<Double> getAllProductPrices() {
@@ -84,9 +94,17 @@ public class InventoryPage {
                 .toList();
     }
     public void openMenu() {
+        if (wait != null) {
+            wait.until(ExpectedConditions.elementToBeClickable(menuBtn)).click();
+            return;
+        }
         driver.findElement(menuBtn).click();
     }
     public void clickLogout() {
+        if (wait != null) {
+            wait.until(ExpectedConditions.elementToBeClickable(logoutLink)).click();
+            return;
+        }
         driver.findElement(logoutLink).click();
     }
     public void logout() {
@@ -95,6 +113,7 @@ public class InventoryPage {
     }
 
     public boolean isOnInventoryPage() {
+
         return driver.getCurrentUrl().contains("inventory");
     }
 }
